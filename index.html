@@ -15,7 +15,7 @@
 #rr-widget * {box-sizing:border-box}
 
 #rr-widget .panel {
-  background:rgba(10,15,23,0.25);
+  background:rgba(0,0,0,0.30);
   border:2px solid rgba(224,0,32,.85);
   border-left:6px solid #ff102f;
   border-radius:12px;
@@ -37,6 +37,7 @@
   font-size:17px;
   font-weight:900;
   letter-spacing:2px;
+  color:#fff;
 }
 
 #rr-widget .nick {
@@ -63,8 +64,8 @@
 }
 
 #rr-widget .stat {
-  background:rgba(255,0,35,.035);
-  border:1px solid rgba(255,0,35,.45);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.25);
   padding:16px 8px;
   border-radius:8px;
   text-align:center;
@@ -72,13 +73,14 @@
 }
 
 #rr-widget .label {
-  color:#aab5c3;
+  color:#fff;
   font-size:10px;
   font-weight:800;
   letter-spacing:1.3px;
 }
 
 #rr-widget .number {
+  color:#fff;
   font-size:clamp(21px,4vw,34px);
   font-weight:900;
   margin-top:9px;
@@ -93,7 +95,7 @@
   display:flex;
   justify-content:space-between;
   margin-top:14px;
-  color:#aab5c3;
+  color:#fff;
   font-size:9px;
   gap:8px;
 }
@@ -309,6 +311,3 @@
   setInterval(update,INTERVAL);
 })();
 </script>
-
-</body>
-</html>
