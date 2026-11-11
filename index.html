@@ -1,311 +1,302 @@
 
-<div id="rr-widget">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RaceRoom Ranked - Jordi Audet</title>
 
-#rr-widget {
-  font-family:Montserrat,sans-serif;
-  color:#fff;
-  width:100%;
-  max-width:850px;
-  margin:auto;
-  background:transparent;
-}
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-#rr-widget * {box-sizing:border-box}
-
-#rr-widget .panel {
-  background:rgba(10,15,23,0.25);
-  border:2px solid rgba(224,0,32,.85);
-  border-left:6px solid #ff102f;
-  border-radius:12px;
-  padding:22px;
-  box-shadow:0 0 14px rgba(255,0,35,.22);
-  backdrop-filter:blur(4px);
-  -webkit-backdrop-filter:blur(4px);
-}
-
-#rr-widget .header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-  gap:10px;
-}
-
-#rr-widget .brand {
-  font-size:17px;
-  font-weight:900;
-  letter-spacing:2px;
-}
-
-#rr-widget .nick {
-  color:#ff1738;
-  font-size:20px;
-  margin-top:7px;
-  font-weight:900;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  text-shadow:0 0 10px rgba(255,0,35,.4);
-}
-
-#rr-widget .live {
-  font-size:10px;
-  color:#69dc91;
-  font-weight:800;
-  white-space:nowrap;
-}
-
-#rr-widget .stats {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
-}
-
-#rr-widget .stat {
-  background:rgba(255,0,35,.035);
-  border:1px solid rgba(255,0,35,.45);
-  padding:16px 8px;
-  border-radius:8px;
-  text-align:center;
-  min-width:0;
-}
-
-#rr-widget .label {
-  color:#aab5c3;
-  font-size:10px;
-  font-weight:800;
-  letter-spacing:1.3px;
-}
-
-#rr-widget .number {
-  font-size:clamp(21px,4vw,34px);
-  font-weight:900;
-  margin-top:9px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-shadow:0 1px 4px rgba(0,0,0,.7);
-}
-
-#rr-widget .gold {color:#ff1738}
-
-#rr-widget .footer {
-  display:flex;
-  justify-content:space-between;
-  margin-top:14px;
-  color:#aab5c3;
-  font-size:9px;
-  gap:8px;
-}
-
-@media(max-width:480px) {
-  #rr-widget .panel {padding:13px}
-  #rr-widget .stats {gap:6px}
-  #rr-widget .stat {padding:13px 4px}
-  #rr-widget .label {font-size:8px}
-  #rr-widget .nick {font-size:17px}
-}
-</style>
-
-<div class="panel">
-  <div class="header">
-    <div>
-      <div class="brand">RACEROOM RANKED</div>
-      <div class="nick" id="rr-name">JORDI AUDET</div>
-    </div>
-    <div class="live">● LIVE</div>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="label">RATING</div>
-      <div class="number gold" id="rr-rating">---</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">REPUTACIÓN</div>
-      <div class="number" id="rr-rep">---</div>
-    </div>
-
-    <div class="stat">
-      <div class="label">GLOBAL</div>
-      <div class="number" id="rr-position">---</div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <span id="rr-status">Conectando...</span>
-    <span id="rr-time">--:--:--</span>
-  </div>
-</div>
-</div>
-
-<script>
-(() => {
-  const PILOT_NICK = "jaudetb";
-  const DISPLAY_NAME = "Jordi Audet";
-  const API = "https://game.raceroom.com/multiplayer-rating/ratings.json";
-  const INTERVAL = 60000;
-
-  const $ = id => document.getElementById(id);
-
-  const normalize = s => String(s ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .toLowerCase().trim();
-
-  const cleanKey = s =>
-    normalize(s).replace(/[^a-z0-9]/g,"");
-
-  function getField(obj, aliases) {
-    if (!obj || typeof obj !== "object") return null;
-
-    for (const [key,value] of Object.entries(obj)) {
-      if (
-        aliases.includes(cleanKey(key)) &&
-        value !== null &&
-        value !== ""
-      ) return value;
+  <style>
+    * {
+      box-sizing: border-box;
     }
-    return null;
-  }
 
-  function num(value) {
-    if (typeof value === "number") return value;
-
-    if (typeof value === "string") {
-      const n = Number(value.replace(",","."));
-      return Number.isFinite(n) ? n : null;
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: 'Montserrat', sans-serif;
     }
-    return null;
-  }
 
-  function findPlayers(data) {
-    const result = [];
-    const visited = new WeakSet();
+    .widget {
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.30);
+      border: 1px solid rgba(255, 0, 35, 0.8);
+      border-radius: 12px;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      box-shadow: 0 0 18px rgba(255, 0, 35, 0.12);
+    }
 
-    const nameKeys = [
-      "name","username","playername","drivername",
-      "nickname","displayname","fullname"
-    ];
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
 
-    const ratingKeys = [
-      "rating","rankedrating","mprating",
-      "elo","skillrating"
-    ];
+    .brand {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
 
-    const repKeys = [
-      "reputation","rep","rankedreputation",
-      "mpreputation","safetyrating"
-    ];
+    .live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
 
-    const posKeys = [
-      "position","globalposition","globalrank",
-      "worldrank","rank","place"
-    ];
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ff002d;
+      box-shadow: 0 0 8px #ff002d;
+    }
 
-    function walk(node,depth) {
-      if (
-        !node ||
-        typeof node !== "object" ||
-        depth > 12 ||
-        visited.has(node)
-      ) return;
+    .pilot {
+      margin-bottom: 18px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-      visited.add(node);
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
 
-      if (Array.isArray(node)) {
-        node.forEach(x => walk(x,depth+1));
-        return;
+    .stat {
+      min-width: 0;
+      padding: 12px 8px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 7px;
+    }
+
+    .stat-label {
+      margin-bottom: 7px;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      color: #fff;
+      font-size: 21px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+      padding-top: 11px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 600;
+    }
+
+    .status {
+      color: #fff;
+    }
+
+    .error {
+      color: #ff526d;
+    }
+
+    @media (max-width: 340px) {
+      .widget {
+        padding: 14px;
       }
 
-      const name = getField(node,nameKeys);
-      const rating = num(getField(node,ratingKeys));
-      const rep = num(getField(node,repKeys));
-      const pos = num(getField(node,posKeys));
+      .stat-value {
+        font-size: 18px;
+      }
 
-      if (name != null && rating != null && rep != null) {
-        result.push({
-          name:String(name),
-          rating,
-          rep,
-          pos
+      .stat-label {
+        font-size: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="widget">
+    <div class="header">
+      <div class="brand">RACEROOM RANKED</div>
+      <div class="live">
+        <span class="live-dot"></span>
+        LIVE
+      </div>
+    </div>
+
+    <div class="pilot">Jordi Audet</div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">RATING</div>
+        <div class="stat-value" id="rating">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">REPUTACIÓN</div>
+        <div class="stat-value" id="reputation">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-label">GLOBAL</div>
+        <div class="stat-value" id="position">—</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="status" id="status">Conectando...</span>
+      <span id="updated">--:--:--</span>
+    </div>
+  </div>
+
+  <script>
+    const PLAYER_NICKNAME = "jaudetb";
+    const API_URL = "https://game.raceroom.com/multiplayer-rating/ratings.json";
+    const REFRESH_INTERVAL = 60000;
+
+    const normalize = value =>
+      String(value || "").trim().toLowerCase();
+
+    function findPlayers(data, results = []) {
+      if (!data || typeof data !== "object") return results;
+
+      if (Array.isArray(data)) {
+        data.forEach(item => findPlayers(item, results));
+        return results;
+      }
+
+      const name =
+        data.nickname ??
+        data.username ??
+        data.name ??
+        data.player_name ??
+        data.driver ??
+        data.nick;
+
+      const rating =
+        data.rating ??
+        data.elo ??
+        data.points ??
+        data.skill_rating;
+
+      const reputation =
+        data.reputation ??
+        data.rep ??
+        data.safety_rating ??
+        data.safety;
+
+      const position =
+        data.position ??
+        data.rank ??
+        data.place ??
+        data.global_position;
+
+      if (name && rating !== undefined) {
+        results.push({
+          name: String(name),
+          rating: Number(rating),
+          reputation: reputation ?? "—",
+          position: position ?? null
         });
       }
 
-      Object.values(node).forEach(x => {
-        if (x && typeof x === "object") {
-          walk(x,depth+1);
+      Object.values(data).forEach(value => {
+        if (value && typeof value === "object") {
+          findPlayers(value, results);
         }
       });
+
+      return results;
     }
 
-    walk(data,0);
-    return result;
-  }
+    async function updateWidget() {
+      const status = document.getElementById("status");
 
-  async function update() {
-    try {
-      const response = await fetch(
-        API + "?t=" + Date.now(),
-        {cache:"no-store"}
-      );
+      try {
+        const response = await fetch(API_URL, {
+          cache: "no-store"
+        });
 
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
+        if (!response.ok) {
+          throw new Error("Error HTTP " + response.status);
+        }
 
-      const data = await response.json();
-      const players = findPlayers(data);
+        const data = await response.json();
+        const players = findPlayers(data);
 
-      if (!players.length) {
-        throw new Error("Estructura JSON no reconocida");
-      }
-
-      const pilot = players.find(
-        p => normalize(p.name) === normalize(PILOT_NICK)
-      );
-
-      if (!pilot) {
-        throw new Error("Piloto JA UDETB no encontrado");
-      }
-
-      let position = pilot.pos;
-
-      if (position == null) {
-        const sorted = [...players].sort(
-          (a,b) => b.rating-a.rating
+        const player = players.find(item =>
+          normalize(item.name) === normalize(PLAYER_NICKNAME)
         );
 
-        position = sorted.findIndex(
-          p => normalize(p.name) === normalize(pilot.name)
-        ) + 1;
+        if (!player) {
+          throw new Error("Piloto no encontrado");
+        }
+
+        document.getElementById("rating").textContent =
+          Number.isFinite(player.rating)
+            ? Math.round(player.rating).toLocaleString("es-ES")
+            : "—";
+
+        document.getElementById("reputation").textContent =
+          player.reputation;
+
+        let position = player.position;
+
+        if (position === null || position === undefined) {
+          const sorted = [...players]
+            .filter(p => Number.isFinite(p.rating))
+            .sort((a, b) => b.rating - a.rating);
+
+          position = sorted.findIndex(p =>
+            normalize(p.name) === normalize(PLAYER_NICKNAME)
+          ) + 1;
+        }
+
+        document.getElementById("position").textContent =
+          position > 0 ? "#" + position : "—";
+
+        status.textContent = "Datos actualizados";
+        status.className = "status";
+
+        document.getElementById("updated").textContent =
+          new Date().toLocaleTimeString("es-ES");
+
+      } catch (error) {
+        console.error("RaceRoom Ranked:", error);
+        status.textContent = "Error al cargar datos";
+        status.className = "error";
       }
-
-      $("rr-name").textContent = DISPLAY_NAME;
-
-      $("rr-rating").textContent =
-        pilot.rating.toLocaleString("es-ES");
-
-      $("rr-rep").textContent =
-        pilot.rep.toLocaleString("es-ES");
-
-      $("rr-position").textContent =
-        position > 0 ? "#" + position : "---";
-
-      $("rr-status").textContent = "Datos actualizados";
-
-      $("rr-time").textContent =
-        new Date().toLocaleTimeString("es-ES");
-
-    } catch(error) {
-      console.error("RaceRoom:",error);
-      $("rr-status").textContent =
-        "Error de conexión / CORS";
     }
-  }
 
-  update();
-  setInterval(update,INTERVAL);
-})();
-</script>
+    updateWidget();
+    setInterval(updateWidget, REFRESH_INTERVAL);
+  </script>
+</body>
+</html>
