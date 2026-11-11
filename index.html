@@ -1,3 +1,4 @@
+
 <div id="rr-widget">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap');
@@ -8,16 +9,18 @@
   width:100%;
   max-width:850px;
   margin:auto;
+  background:transparent;
 }
+
 #rr-widget * {box-sizing:border-box}
 
 #rr-widget .panel {
-  background:linear-gradient(130deg,#10151d,#202936);
-  border:2px solid #e00020;
+  background:transparent;
+  border:2px solid rgba(224,0,32,.85);
   border-left:6px solid #ff102f;
   border-radius:12px;
   padding:22px;
-  box-shadow:0 0 14px rgba(255,0,35,.22);
+  box-shadow:0 0 14px rgba(255,0,35,.18);
 }
 
 #rr-widget .header {
@@ -58,7 +61,7 @@
 }
 
 #rr-widget .stat {
-  background:rgba(255,0,35,.045);
+  background:rgba(255,0,35,.035);
   border:1px solid rgba(255,0,35,.45);
   padding:16px 8px;
   border-radius:8px;
@@ -79,6 +82,7 @@
   margin-top:9px;
   white-space:nowrap;
   overflow:hidden;
+  text-shadow:0 1px 4px rgba(0,0,0,.7);
 }
 
 #rr-widget .gold {color:#ff1738}
@@ -87,7 +91,7 @@
   display:flex;
   justify-content:space-between;
   margin-top:14px;
-  color:#8793a3;
+  color:#aab5c3;
   font-size:9px;
   gap:8px;
 }
@@ -219,18 +223,11 @@
       const pos = num(getField(node,posKeys));
 
       if (name != null && rating != null && rep != null) {
-        result.push({
-          name:String(name),
-          rating,
-          rep,
-          pos
-        });
+        result.push({name:String(name),rating,rep,pos});
       }
 
       Object.values(node).forEach(x => {
-        if (x && typeof x === "object") {
-          walk(x,depth+1);
-        }
+        if (x && typeof x === "object") walk(x,depth+1);
       });
     }
 
@@ -245,56 +242,38 @@
         {cache:"no-store"}
       );
 
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
+      if (!response.ok) throw new Error("HTTP " + response.status);
 
       const data = await response.json();
       const players = findPlayers(data);
 
-      if (!players.length) {
-        throw new Error("Estructura JSON no reconocida");
-      }
+      if (!players.length) throw new Error("Estructura JSON no reconocida");
 
       const pilot = players.find(
         p => normalize(p.name) === normalize(PILOT_NICK)
       );
 
-      if (!pilot) {
-        throw new Error("Piloto JA UDETB no encontrado");
-      }
+      if (!pilot) throw new Error("Piloto JA UDETB no encontrado");
 
       let position = pilot.pos;
 
       if (position == null) {
-        const sorted = [...players].sort(
-          (a,b) => b.rating-a.rating
-        );
-
+        const sorted = [...players].sort((a,b) => b.rating-a.rating);
         position = sorted.findIndex(
           p => normalize(p.name) === normalize(pilot.name)
         ) + 1;
       }
 
       $("rr-name").textContent = DISPLAY_NAME;
-      $("rr-rating").textContent =
-        pilot.rating.toLocaleString("es-ES");
-
-      $("rr-rep").textContent =
-        pilot.rep.toLocaleString("es-ES");
-
-      $("rr-position").textContent =
-        position > 0 ? "#" + position : "---";
-
+      $("rr-rating").textContent = pilot.rating.toLocaleString("es-ES");
+      $("rr-rep").textContent = pilot.rep.toLocaleString("es-ES");
+      $("rr-position").textContent = position > 0 ? "#" + position : "---";
       $("rr-status").textContent = "Datos actualizados";
-
-      $("rr-time").textContent =
-        new Date().toLocaleTimeString("es-ES");
+      $("rr-time").textContent = new Date().toLocaleTimeString("es-ES");
 
     } catch(error) {
       console.error("RaceRoom:",error);
-      $("rr-status").textContent =
-        "Error de conexión / CORS";
+      $("rr-status").textContent = "Error de conexión / CORS";
     }
   }
 
